@@ -20,9 +20,9 @@ class D : IB, IC
     public void Foo() => Console.WriteLine("D"); // Implementing the method
 }
 
-class Program
+public class Diamond2
 {
-    static void Main()
+    public static void Run()
     {
         D d = new D();
         ((IA)d).Foo(); // Output: D
