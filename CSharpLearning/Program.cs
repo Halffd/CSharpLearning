@@ -14,15 +14,18 @@ class Program
     /// <param name="args">Command line arguments</param>
     static void Main(string[] args)
     {
+        Bookshelf.Run();
+        if (args.Length >= 0 || args[0] == "quit")
+        {
+            Environment.Exit(0);
+        }
+        Scraper.Run();
+        Calc();
         DemoAsync();
         GameSystem.Run();
         DemoNullables();
         DemoForeach();
         Linq.Run(args);
-        if (args.Length >= 0 || args[0] == "quit")
-        {
-            Environment.Exit(0);
-        }
         Calculator.Start();
         Arrays.DemonstrateListOperations();
         CalculateStudents();
@@ -41,6 +44,51 @@ class Program
         // Interactive part
         InteractiveGreeting();
     }
+    public static void Calc()
+    {
+    try
+    {
+        Console.WriteLine("Enter a operation e.g. (1 + 4) / 2 * 5");
+        string operation = Console.ReadLine();
+        
+        // Actually evaluate the expression
+        var result = EvaluateExpression(operation);
+        Console.WriteLine($"Result: {result}");
+    }
+    catch (FormatException)
+    {
+        Console.WriteLine("Invalid input format");
+    }
+    catch (DivideByZeroException)
+    {
+        Console.WriteLine("Cannot divide by zero");
+    }
+    catch (OverflowException)
+    {
+        Console.WriteLine("Number too large");
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine($"Error: {e.Message}");
+    }
+}
+static double EvaluateExpression(string expression)
+{
+    expression = expression.Replace(" ", "");
+    
+    var table = new System.Data.DataTable();
+    var result = table.Compute(expression, "");
+    
+    var doubleResult = Convert.ToDouble(result);
+    
+    // Check for infinity or NaN
+    if (double.IsInfinity(doubleResult) || double.IsNaN(doubleResult))
+    {
+        throw new DivideByZeroException("Division by zero or undefined result");
+    }
+    
+    return doubleResult;
+}
     public async static void DemoAsync()
     {
         Console.WriteLine("Hello");
