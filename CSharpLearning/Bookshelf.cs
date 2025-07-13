@@ -2,17 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-// For the IEnumerable example:
-IEnumerable<Book> GetBooks(IEnumerable<Book> books)
-{
-    int i = 0;
-    foreach (Book book in books)
-    {
-        Console.WriteLine($"Book {i}: {book.Title}");
-        yield return book;
-        i++; // Move this after yield return, and remove the duplicate i++
-    }
-}
+// Moved GetBooks inside Bookshelf class
 
 // For the generic type system example:
 public class BookCollection<T> where T : Book
@@ -35,39 +25,69 @@ public class BookCollection<T> where T : Book
 }
 
 // For generics with constraints:
-public class Repository<T> where T : class, new()
+public class Repository<T> where T : class
 {
-    private List<T> items = new List<T>();
+    private readonly List<T> items = new();
+    private readonly Func<T> _factory;
+    
+    // Default constructor for types with parameterless constructors
+    public Repository()
+    {
+        var ctor = typeof(T).GetConstructor(Type.EmptyTypes);
+        if (ctor == null)
+            throw new InvalidOperationException($"Type {typeof(T).Name} does not have a parameterless constructor.");
+        
+        _factory = () => (T)ctor.Invoke(null);
+    }
+    
+    // Constructor that accepts a factory method for types with required properties
+    public Repository(Func<T> factory)
+    {
+        _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+    }
     
     public void Add(T item)
     {
-        items.Add(item);
+        items.Add(item ?? throw new ArgumentNullException(nameof(item)));
     }
     
     public T CreateNew()
     {
-        return new T();
+        return _factory();
     }
-
+    
     public T Get(int index)
     {
-        return items[index];
+        if (index < 0 || index >= items.Count)
+            throw new ArgumentOutOfRangeException(nameof(index));
+            
+        return items[index]!;
     }
     
-    public int Count => items.Count; // Use property instead of method
+    public int Count => items.Count;
     
-    public IEnumerable<T> Items => items; // Expose items for iteration
+    public IEnumerable<T> Items => items;
 }
 
 public class Book
 {
-    public string Title { get; set; }
-    public string Author { get; set; }
+    public required string Title { get; set; }
+    public required string Author { get; set; }
     public int Pages { get; set; }
 }
 
 public class Bookshelf
 {
+    private static IEnumerable<Book> GetBooks(IEnumerable<Book> books)
+    {
+        int i = 0;
+        foreach (Book book in books)
+        {
+            Console.WriteLine($"Book {i}: {book.Title}");
+            yield return book;
+            i++;
+        }
+    }
     private List<Book> books = new List<Book>(); // Make it a List, not IEnumerable
     
     public void AddBook(Book book)
@@ -102,7 +122,14 @@ public class Bookshelf
             Console.WriteLine($"Processed book: {book.Title}");
         }
         
-        Repository<Book> repository = new Repository<Book>();
+        Repository<Book> repository = new Repository<Book>(() => new Book 
+        { 
+            Title = "Default Title", 
+            Author = "Unknown Author", 
+            Pages = 0 
+        });
+        
+        // Now we can add books with all required properties
         repository.Add(new Book { Title = "Repo Book 1", Author = "Author 1", Pages = 100 });
         repository.Add(new Book { Title = "Repo Book 2", Author = "Author 2", Pages = 200 });
         repository.Add(new Book { Title = "Repo Book 3", Author = "Author 3", Pages = 300 });

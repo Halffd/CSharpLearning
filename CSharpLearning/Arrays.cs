@@ -43,7 +43,7 @@ namespace CSharpLearning
                 Console.WriteLine(item);
             }
 
-            string[] students = new string[5];
+            string?[] students = new string?[5];
             students[3] = "Alice";
             students[1] = "Bob";
             students[2] = "Charlie";
@@ -51,11 +51,19 @@ namespace CSharpLearning
             students[4] = "Eve";
             //Delete last
             students[4] = null;
-            // Sort bitwise
-            Array.Sort(students);
-            foreach (string student in students)
+            
+            // Sort with null handling
+            Array.Sort(students, (a, b) => 
             {
-                Console.WriteLine(student);
+                if (a == null && b == null) return 0;
+                if (a == null) return 1;  // nulls last
+                if (b == null) return -1;  // nulls last
+                return string.Compare(a, b, StringComparison.Ordinal);
+            });
+            
+            foreach (var student in students)
+            {
+                Console.WriteLine(student ?? "[null]");
             }
         }
     }

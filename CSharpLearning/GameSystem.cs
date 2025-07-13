@@ -77,9 +77,12 @@ namespace CSharpLearning
             Skills.Add(skill);
         }
 
-        public Skill GetSkill(string name)
+        public Skill? GetSkill(string name)
         {
-            return Skills.FirstOrDefault(x => x.Name == name);
+            if (string.IsNullOrEmpty(name))
+                return null;
+                
+            return Skills.FirstOrDefault(x => string.Equals(x?.Name, name, StringComparison.OrdinalIgnoreCase));
         }
     }
 

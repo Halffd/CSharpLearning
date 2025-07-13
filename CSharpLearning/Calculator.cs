@@ -302,7 +302,12 @@ namespace CSharpLearning
             double den1 = GetNumber("Denominator: ");
             
             Console.WriteLine("\nEnter operation (+, -, *, /): ");
-            string op = Console.ReadLine();
+            string? op = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(op))
+            {
+                Console.WriteLine("Error: No operation entered");
+                return;
+            }
             
             Console.WriteLine("\nEnter second fraction (numerator/denominator):");
             double num2 = GetNumber("Numerator: ");
@@ -1440,7 +1445,7 @@ namespace CSharpLearning
         }
         
         // Helper method to get a number with validation
-        private static double GetNumber(string prompt, Func<double, bool> validator = null)
+        private static double GetNumber(string prompt, Func<double, bool>? validator = null)
         {
             while (true)
             {

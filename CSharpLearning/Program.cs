@@ -14,12 +14,16 @@ class Program
     /// <param name="args">Command line arguments</param>
     static void Main(string[] args)
     {
+        dictionary();
+        tuple();
+        anonymous();
         Bookshelf.Run();
+        Pancake.Run();
         if (args.Length >= 0 || args[0] == "quit")
         {
             Environment.Exit(0);
         }
-        Scraper.Run();
+        Scraper.Run("https://example.com"); // TODO: Replace with actual URL
         Calc();
         DemoAsync();
         GameSystem.Run();
@@ -44,6 +48,48 @@ class Program
         // Interactive part
         InteractiveGreeting();
     }
+    public static void dictionary()
+    {
+        Dictionary<string, string> dictionary = new Dictionary<string, string>();
+        dictionary.Add("run", "the action");
+        dictionary.Add("quit", "quit the program");
+        dictionary.Add("help", "show this help");
+        foreach (var item in dictionary)
+        {
+            Console.WriteLine($"{item.Key}: {item.Value}");
+        }
+        var objects = new Dictionary<string, object>();
+        objects.Add("run", "the action");
+        objects.Add("quit", -1);
+        objects.Add("help", true);
+        foreach (var item in objects)
+        {
+            Console.WriteLine($"{item.Key}: {item.Value}");
+        }
+    }
+    public static void tuple()
+    {
+        //tuples
+        var comic = (Title:"The Comic", Author:"The Author", Year:2022, Chapters:10, Volume:1);
+        Console.WriteLine(comic.Title);
+        Console.WriteLine(comic.Author);
+        Console.WriteLine(comic.Year);
+        Console.WriteLine(comic.Chapters);
+        Console.WriteLine(comic.Volume);
+    }
+    public static void anonymous()
+    {
+        //anonymous type
+        var person = new { Name = "John", Age = 30 };
+        Console.WriteLine(person.Name);
+        Console.WriteLine(person.Age);
+        // Using a named delegate instead of lambda in anonymous type
+        Action greet = () => Console.WriteLine("Hello from delegate");
+        greet();
+        //anonymous method
+        Action action = () => Console.WriteLine("Hello");
+        action();
+    }
     public static void Calc()
     {
     try
@@ -67,13 +113,23 @@ class Program
     {
         Console.WriteLine("Number too large");
     }
+    catch (ArgumentException e)
+    {
+        Console.WriteLine($"Error: {e.Message}");
+    }
     catch (Exception e)
     {
         Console.WriteLine($"Error: {e.Message}");
     }
 }
-static double EvaluateExpression(string expression)
+static double EvaluateExpression(string? expression)
 {
+    if (string.IsNullOrWhiteSpace(expression))
+    {
+        throw new ArgumentException("Expression cannot be null or empty", nameof(expression));
+    }
+    
+    // Remove any whitespace from the expression
     expression = expression.Replace(" ", "");
     
     var table = new System.Data.DataTable();

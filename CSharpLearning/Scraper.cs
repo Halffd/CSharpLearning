@@ -8,14 +8,14 @@ using HtmlAgilityPack;
 
 public class Scraper 
 {
-    public static void Run(string url)
+    public static void Run(string baseUrl)
     {
         try
         {
             Directory.CreateDirectory("thread");
             
             var web = new HtmlWeb();
-            var doc = web.Load(url);
+            var doc = web.Load(baseUrl);
             
             var imageNodes = doc.DocumentNode.SelectNodes("//div[@class='fileText']/a");
             
@@ -34,10 +34,10 @@ public class Scraper
                     {
                         try
                         {
-                            string url = "https:" + node.Attributes["href"].Value;
-                            string fileName = url.Split("/").Last();
+                            string imageUrl = "https:" + node.Attributes["href"].Value;
+                            string fileName = imageUrl.Split("/").Last();
                             
-                            var response = client.GetAsync(url).Result;
+                            var response = client.GetAsync(imageUrl).Result;
                             
                             if (response.IsSuccessStatusCode)
                             {
